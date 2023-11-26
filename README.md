@@ -2,7 +2,7 @@
 
 ## Overview
 
-This smart contract implements a parking reservation system using the typescript on azle for internet Computer. The system allows for the initialization of an owner, addition of parking slots, allocation of parking spaces to clients, vallet delivery, and various operations on parking slots.
+This smart contract implements a parking reservation system using the typescript on azle for internet Computer. The system allows for the initialization of an owner, addition of parking slots, allocation of parking spaces to clients, valet delivery, and various operations on parking slots.
 
 ## Prerequisites
 
@@ -60,7 +60,7 @@ The project is organized into the following directories and files:
 
 - Allocates a parking space to a client, marking the slot as occupied.
 
-### `valletDelivery(payload: ValletPayload): string`
+### `valetDelivery(payload: ValletPayload): string`
 
 - Handles vallet delivery, updating the total cost and client's location.
 
@@ -81,7 +81,7 @@ The project is organized into the following directories and files:
 - Initialize the owner using `initOwner(name)`.
 - Add parking slots with `addParkingSlot(payload)`.
 - Allocate parking spaces to clients using `getParkingSpace(payload)`.
-- Manage vallet delivery with `valletDelivery(payload)`.
+- Manage vallet delivery with `valetDelivery(payload)`.
 - Perform various operations on parking slots, including updates and deletions.
 
 ## Try it out

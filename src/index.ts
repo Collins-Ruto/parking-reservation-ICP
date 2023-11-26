@@ -28,7 +28,7 @@ type Allocation = Record<{
   created_date: nat64;
 }>;
 
-type Vallet = Record<{
+type Valet = Record<{
   id: string;
   allocation: string;
   client_location: string;
@@ -46,7 +46,7 @@ type AllocationPayload = Record<{
   car_model: string;
 }>;
 
-type ValletPayload = Record<{
+type ValetPayload = Record<{
   allocation_id: string;
   client_location: string;
 }>;
@@ -59,7 +59,7 @@ type CarResponse = Record<{
 // Creating instances of StableBTreeMap for each entity type
 const ownerStorage = new StableBTreeMap<string, Owner>(0, 44, 512);
 const allocationStorage = new StableBTreeMap<string, Allocation>(1, 44, 512);
-const valletStorage = new StableBTreeMap<string, Vallet>(2, 44, 512);
+const valetStorage = new StableBTreeMap<string, Valet>(2, 44, 512);
 const parkingStorage = new StableBTreeMap<string, Parking>(3, 44, 512);
 
 // Initialization of ownerStorage
@@ -178,19 +178,19 @@ export function pickupCar(id: string): CarResponse {
 }
 
 $update;
-// Function to handle vallet delivery and add vallet payment
-export function valletDelivery(payload: ValletPayload): string {
+// Function to handle valet delivery and add valet payment
+export function valetDelivery(payload: ValetPayload): string {
   const price = pickupCar(payload.allocation_id).price;
-  const vallet = {
+  const valet = {
     id: uuidv4(),
     allocation: payload.allocation_id,
     client_location: payload.client_location,
     created_date: ic.time(),
     updated_at: Opt.None,
   };
-  valletStorage.insert(vallet.id, vallet);
+  valetStorage.insert(valet.id, valet);
   return `Your car will be delivered to ${
-    vallet.client_location
+    valet.client_location
   } new total cost: \$${price + 5}`;
 }
 
