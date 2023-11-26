@@ -1,13 +1,12 @@
 {
-    "canisters": {
-        "parking_reservation_ICP": {
-            "type": "custom",
-            "main": "src/index.ts",
-            "candid": "src/index.did",
-            "build": "npx azle parking_reservation_ICP",
-            "wasm": ".azle/parking_reservation_ICP/parking_reservation_ICP.wasm",
-            "gzip": true
-        }
+  "canisters": {
+    "parking_reservation_ICP": {
+      "type": "custom",
+      "root": "src",
+      "ts": "src/index.ts",
+      "candid": "src/index.did",
+      "build": "npx azle parking_reservation_ICP",
+      "wasm": ".azle/parking_reservation_ICP/parking_reservation_ICP.wasm.gz"
     }
+  }
 }
-

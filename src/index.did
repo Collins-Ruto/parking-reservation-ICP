@@ -1,0 +1,23 @@
+type AllocationPayload = record { parking_id : text; car_model : text };
+type CarResponse = record { msg : text; price : float64 };
+type Parking = record {
+  id : text;
+  updated_at : opt nat64;
+  is_occupied : bool;
+  price : text;
+  created_date : nat64;
+  parking_slot : text;
+};
+type ParkingPayload = record { price : text; parking_slot : text };
+type ValletPayload = record { allocation_id : text; client_location : text };
+type _AzleResult = variant { Ok : vec Parking; Err : text };
+service : () -> {
+  addParkingSlot : (ParkingPayload) -> (text);
+  deleteParkingSlot : (text) -> (text);
+  getAvailableSlots : () -> (_AzleResult) query;
+  getParkingSpace : (AllocationPayload) -> (text);
+  initOwner : (text) -> (text);
+  pickupCar : (text) -> (CarResponse) query;
+  updateParkingSlot : (text, ParkingPayload) -> (text);
+  valletDelivery : (ValletPayload) -> (text);
+}
