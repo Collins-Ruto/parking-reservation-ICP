@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project implements a simple parking management system using the Azle programming language. The system allows for the initialization of an owner, addition of parking slots, allocation of parking spaces to clients, vallet delivery, and various operations on parking slots.
+This smart contract implements a parking reservation system using the typescript on azle for internet Computer. The system allows for the initialization of an owner, addition of parking slots, allocation of parking spaces to clients, vallet delivery, and various operations on parking slots.
 
 ## Prerequisites
 
