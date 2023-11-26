@@ -13,6 +13,14 @@ import {
 } from "azle";
 import { v4 as uuidv4 } from "uuid";
 
+type Owner = Record<{
+    id: string;
+    name: string;
+    owner: Principal,
+    created_date: nat64;
+    updated_at: Opt<nat64>;
+}>
+
 type Parking = Record<{
   id: string;
   parking_id: string;
@@ -53,19 +61,42 @@ type ValletPayload = Record<{
   client_location: string;
 }>;
 
-const parkingStorage = new StableBTreeMap<string, Parking>(0, 44, 512);
+const ownerStorage = new StableBTreeMap<string, Owner>(0, 44, 512);
 const allocationStorage = new StableBTreeMap<string, Allocation>(1, 44, 512);
 const valletStorage = new StableBTreeMap<string, Vallet>(2, 44, 512);
+const parkingStorage = new StableBTreeMap<string, Parking>(3, 44, 512);
+
+$update
+export function initOwner(name: string): string {
+    if (!ownerStorage.isEmpty()) {
+        return (`Owner has already been initialized`)
+    }
+  const owner = {
+    id: uuidv4(),
+      name: name,
+        owner: ic.caller(),
+    created_date: ic.time(),
+    updated_at: Opt.None,
+  };
+  ownerStorage.insert(owner.id, owner);
+  return owner.id;
+}
+
+function getOwner(): Owner {
+    return ownerStorage.values()[0]
+}
 
 $query;
 export function getAvailableSlots(): Result<Vec<Parking>, string> {
-  const slots = parkingStorage.values();
-  slots.filter((slot) => !slot.is_occupied);
-  return Result.Ok(slots);
+    const slots = parkingStorage.values().filter((slot) => !slot.is_occupied);
+    return Result.Ok(slots);
 }
 
 $update;
 export function addParkingSlot(payload: ParkingPayload): string {
+    if (getOwner().owner !== ic.caller()) {
+        return ("Action reserved for the contract owner");
+    }
   const parking = {
     id: uuidv4(),
     parking_id: payload.parking_id,
@@ -79,7 +110,7 @@ export function addParkingSlot(payload: ParkingPayload): string {
 }
 
 $update;
-export function addAllocation(payload: AllocationPayload): string {
+export function getParkingSpace(payload: AllocationPayload): string {
   const allocation = {
     id: uuidv4(),
     parking_id: payload.parking_id,
@@ -102,7 +133,7 @@ export function addAllocation(payload: AllocationPayload): string {
 }
 
 $update;
-export function addVallet(payload: ValletPayload): string {
+export function valletDelivery(payload: ValletPayload): string {
   const price = pickupCar(payload.allocation_id).price;
   const vallet = {
     id: uuidv4(),
@@ -149,3 +180,43 @@ export function pickupCar(id: string): { msg: string; price: number } {
     },
   });
 }
+
+$update
+export function updateParkingSlot(id: string, payload: ParkingPayload): string {
+     if (getOwner().owner !== ic.caller()) {
+        return ("Action reserved for the contract owner");
+    }
+  const parking = match(parkingStorage.get(id), {
+    Some: (parking) => parking,
+    None: () => ({} as unknown as Parking),
+  });
+  if (parking) {
+    parking.parking_id = payload.parking_id;
+    parking.price = payload.price;
+    parking.updated_at = Opt.Some(ic.time());
+    parkingStorage.insert(parking.id, parking);
+  }
+  return parking.id;
+}
+
+$update
+export function deleteParkingSlot(id: string): string {
+     if (getOwner().owner !== ic.caller()) {
+        return ("Action reserved for the contract owner");
+    }
+  parkingStorage.remove(id);
+  return (`Parking slot of ID: ${id} removed successfully`);
+}
+
+globalThis.crypto = {
+    // @ts-ignore
+    getRandomValues: () => {
+        let array = new Uint8Array(32);
+
+        for (let i = 0; i < array.length; i++) {
+            array[i] = Math.floor(Math.random() * 256);
+        }
+
+        return array;
+    },
+};
