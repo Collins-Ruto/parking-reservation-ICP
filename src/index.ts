@@ -64,10 +64,11 @@ const parkingStorage = new StableBTreeMap<string, Parking>(3, 44, 512);
 
 // Initialization of ownerStorage
 $update;
-export function initOwner(name: string): string {
+export function initOwner(name: string): string | undefined {
   if (!ownerStorage.isEmpty()) {
     return `Owner has already been initialized`;
   }
+
   const owner = {
     id: uuidv4(),
     name: name,
@@ -83,22 +84,26 @@ $query;
 // Function to get available parking slots
 export function getAvailableSlots(): Result<Vec<Parking>, string> {
   const slots = parkingStorage.values().filter((slot) => !slot.is_occupied);
-  if (slots.length == 0) {
+  if (slots.length === 0) {
     return Result.Err("No available parking slots currently");
   }
-  return Result.Ok(slots);
+  return Result.Ok(Vec.from(slots));
 }
 
 $update;
 // Function to add a new parking slot
-export function addParkingSlot(payload: ParkingPayload): string {
+export function addParkingSlot(payload: ParkingPayload): string | undefined {
   if (ownerStorage.isEmpty()) {
-    initOwner("cbd parking");
+    const ownerId = initOwner("cbd parking");
+    if (ownerId === undefined) {
+      return; // Handle initialization error
+    }
   }
-  
-  if (isOwner(ic.caller().toText())) {
+
+  if (!isOwner(ic.caller().toText())) {
     return `Action reserved for the contract owner`;
   }
+
   const parking = {
     id: uuidv4(),
     parking_slot: payload.parking_slot,
